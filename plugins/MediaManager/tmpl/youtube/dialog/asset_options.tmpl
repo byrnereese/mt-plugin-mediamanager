@@ -1,0 +1,51 @@
+<mt:if name="direct_asset_insert">
+    <div>
+        <div id="asset_details" class="direct_insert">
+    <mtapp:setting
+        id="file_name"
+        label_class="top-label"
+        label="<__trans phrase="Name">">
+      <mt:var name="title" escape="html" />
+    </mtapp:setting>
+<mt:ignore>
+    <mtapp:setting
+        id="file_desc"
+        label_class="top-label"
+        label="<__trans phrase="Description">">
+      <mt:var name="description" escape="html" />
+    </mtapp:setting>
+    <mtapp:setting
+        id="file_tags"
+        label_class="top-label"
+        label="<__trans phrase="Tags">">
+      <mt:var name="tags" escape="html" />
+    </mtapp:setting>
+</mt:ignore>
+    </div>
+</mt:if>
+
+    <script type="text/javascript" src="<mt:var name="static_uri">plugins/MediaManager/js/toolbar.js"></script>
+    <div id="image-preview" class="mediamanager" style="background-image: url(<mt:var name="thumbnail" />)"></div>
+
+    <input type="hidden" id="img_url" name="img_url" />
+    <input type="hidden" id="video_id" name="video_id" value="<mt:var name="video_id">" />
+    <input type="hidden" id="display_image" name="include" value="1" />
+    <input type="hidden" name="wrap_text" value="1" />
+
+    <div id="new_entry_prefs">
+      <div id="include_prefs" class="mediamanager">
+          <mtapp:setting
+              id="alignment_var"
+              label="<__trans phrase="Alignment">"
+              label_class="top-label"
+              hint=""
+              show_hint="0">
+            <input type="radio" name="align" id="align-left" class="rb" value="left" <mt:if name="align_left">checked="checked" </mt:if>/>
+            <label class="icon-left icon-left-xwide icon-align icon-align-left"><__trans phrase="Left"></label>
+            <input type="radio" name="align" id="align-center" class="rb" value="center" <mt:if name="align_center">checked="checked" </mt:if>/>
+            <label class="icon-left icon-left-xwide icon-align icon-align-center"><__trans phrase="Center"></label>
+            <input type="radio" name="align" id="align-right" class="rb" value="right" <mt:if name="align_right">checked="checked" </mt:if>/>
+            <label class="icon-left icon-left-xwide icon-align icon-align-right"><__trans phrase="Right"></label>
+          </mtapp:setting>
+      </div>
+    </div>

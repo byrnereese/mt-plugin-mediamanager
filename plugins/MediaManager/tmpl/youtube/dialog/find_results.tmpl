@@ -1,0 +1,133 @@
+<mt:unless name="json">
+<$mt:setvar name="screen_type" value="dialog-screen insert-asset-dialog"$>
+<mt:setvarblock name="page_title"><__trans phrase="Insert YouTube Video"></mt:setvarblock>
+<mt:setvarblock name="html_head" append="1">
+    <link rel="stylesheet" href="<mt:var name="static_uri">plugins/MediaManager/styles/app.css" type="text/css" />
+    <script type="text/javascript" src="<mt:var name="static_uri">plugins/MediaManager/js/app.js"></script>
+    <script type="text/javascript" src="<mt:var name="static_uri">js/tc/client.js"></script>
+    <script type="text/javascript" src="<mt:var name="static_uri">js/tc/json.js"></script>
+    <script type="text/javascript" src="<mt:var name="static_uri">js/dialog.js"></script>
+    <script type="text/javascript" src="<mt:var name="static_uri">js/assetdetail.js"></script>
+
+    <script type="text/javascript">
+    <!--
+    function dialogClose(data) {
+        if (!data) {
+            closeDialog();
+            return;
+        }
+        // user made a selection and clicked insert...
+        var f = document.forms['select_asset'];
+        var sel = dlg.panel.tableSelect.selected();
+        f['id'].value = sel[0].value;
+        f.submit();
+    }
+
+    function viewChange(ds, fn) {
+        checkOpened();
+        if (fn) fn(ds);
+    }
+
+    var tableSelect;
+    var dlg;
+    function init() {
+        // setup
+        // assign isModal variable which is declared in assetdetail.js:
+        isModal = getByID("list-assets-dialog");
+
+        dlg = new Dialog.Simple("list-assets");
+        var panel = new ListingPanel("asset");
+        dlg.panel = panel;
+
+        // hook into view updates so we can close any opened detail panel
+        var old_update = panel.datasource.onUpdate;
+        panel.datasource.onUpdate = function(ds) { viewChange(ds, old_update) };
+
+        panel.pager.setState(<mt:var name="pager_json">);
+        panel.parent = dlg;
+        dlg.open({}, dialogClose);
+    }
+    TC.attachLoadEvent( init );
+    // -->
+    </script>
+</mt:setvarblock>
+<mt:include name="dialog/header.tmpl">
+
+<div id="list-assets-dialog">
+    <div class="panel-header">
+    </div>
+    <div class="listing-filter">
+        <div class="listing-filter-inner inner pkg">
+        </div>
+    </div>
+
+    <div class="amazon-search-results">
+      <form name="search_results" 
+          method="post" 
+          action="<TMPL_VAR NAME=SCRIPT_URL>">
+        <input type="hidden" name="__mode" value="youtube_asset_options" />
+        <input type="hidden" name="blog_id" value="<TMPL_VAR NAME=BLOG_ID>" />
+        <input type="hidden" name="selected" value="" id="selected" />
+</mt:unless>
+<mt:if name="entry_loop">
+<mt:loop name="entry_loop">
+      <div id="asset-<mt:var name="video_id" />" class="asset unselected" onclick="toggle_select('<mt:var name="video_id" />');return false;">
+        <div class="asset-thumbnail" style="background-image: url(<TMPL_VAR NAME=THUMBNAIL>)">
+        </div>
+        <div class="asset-title">
+	 <TMPL_VAR NAME=TITLE>
+        </div>
+      </div>
+</mt:loop>
+<mt:unless name="json">
+    </div> <!-- end id="search_results" -->
+
+<div class="pagination"></div>
+
+<div class="insert_button_spacing">&nbsp;</div>
+
+<div class="actions-bar">
+    <div class="actions-bar-inner pkg actions">
+            <button
+                type="submit"
+                accesskey="s"
+                title="<mt:if name="is_image"><__trans phrase="Continue (c)"><mt:else><__trans phrase="Continue (c)"></mt:if>"
+                class="primary-button close disabled-button"
+                ><mt:if name="is_image"><__trans phrase="Continue"><mt:else><__trans phrase="Continue"></mt:if></button>
+            <button
+                onclick="closeDialog(); return false"
+                type="submit"
+                accesskey="x"
+                class="cancel"
+                title="<__trans phrase="Cancel (x)">"
+                ><__trans phrase="Cancel"></button>
+    </div>
+</div>
+        </form>
+
+    </mt:unless>
+<mt:else>
+    <mtapp:statusmsg
+        id="no-assets"
+        class="info">
+        <__trans phrase="No videos could be found matching those keywords.">
+    </mtapp:statusmsg>
+<div class="actions-bar">
+    <div class="actions-bar-inner pkg actions">
+        <form action="" method="get" onsubmit="return false">
+            <button
+                onclick="closeDialog(); return false"
+                type="submit"
+                accesskey="x"
+                class="cancel"
+                title="<__trans phrase="Cancel (x)">"
+                ><__trans phrase="Cancel"></button>
+        </form>
+    </div>
+</div>
+</mt:if>
+
+<mt:unless name="json">
+    </div>
+<mt:include name="dialog/footer.tmpl">
+</mt:unless>

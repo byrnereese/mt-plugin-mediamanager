@@ -1,0 +1,64 @@
+#asset_details {
+	width: 350px;
+}
+#asset_details.direct_insert {
+	min-height: 220px;
+}
+#image-preview.mediamanager {
+	position: absolute;
+	top: 40px;
+	right: 0px;
+	border: 1px solid #c5d3e0;
+	width: 230px;
+	height: 180px;
+	padding: 5px;
+	background-image: url();
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+#include_prefs.mediamanager .field-header {
+	width: 100px;
+	float: left;
+}
+#include_prefs.mediamanager .field-content {
+	width: 200px;
+	float: left;
+}
+#include_prefs.mediamanager .field-content select {
+	font-size: 12px;
+}
+.amazon-search-results {
+	width: 100%;
+	height: 320px;
+	overflow: auto;
+	padding-top: 5px;
+}
+
+	.amazon-search-results .asset {
+		height: 130px;
+		width: 131px;
+		float: left;
+		border: 1px solid #ccc;
+		padding: 5px;
+		margin-right: 5px;
+		margin-bottom: 5px;
+	}
+		.amazon-search-results .asset.selected {
+			background-color: #336699;
+		}
+			.amazon-search-results .asset.selected .asset-title {
+				color: #fff;
+			}
+	.amazon-search-results .asset-thumbnail {
+		height: 100px;
+		width: 130px;
+		background-repeat: no-repeat;
+		background-position: center center;
+/*		border: 1px solid #ccc;*/
+	}
+	.amazon-search-results .asset-title {
+		width: 130px;
+		height: 30px;
+		overflow: hidden;
+	}

@@ -1,0 +1,111 @@
+#
+# Installation instructions for Media Manager 2.0
+#
+
+Thank you for downloading Media Manager. Below are the manual install 
+instructions for one of Movable Type's most popular plugins.
+
+Before we proceed, make sure each of the following prerequisites have
+been satisfied.
+
+PREREQUISITES
+
+  * User has MovableType 4.01 or greater installed
+  * User has LWP installed
+  * User must have a Amazon Web Services Subscription ID or
+    developer token
+
+INSTALLATION
+
+1) Install Media Manager's files.
+
+   To install Media Manager, unpack the Media Manager archive. Then
+   copy the contents of Media Manager's mt-static directory into 
+   Movable Type's mt-static directory:
+
+   > cp -pR MediaManager-2.0/mt-static/* /path/to/mt/mt-static/
+
+   Then copy the contents of Media Manager's plugins folder to 
+   Movable Type's plugins folder:
+
+   > cp -pR MediaManager-2.0/plugins/* /path/to/mt/plugins/
+
+   In the event that you are unable to unpack Media Manager's archive
+   directly on the server, you may need to install the files manually.
+   To do this, each of Media Manager's files needs to be placed in a
+   specific directory, as outlined below:
+
+     plugins/MediaManager/lib/MediaManager/*  
+           ==> $MTHOME/plugins/MediaManager/lib/MediaManager/
+     plugins/MediaManager/lib/MTAmazon3/*     
+           ==> $MTHOME/plugins/MediaManager/lib/MTAmazon3/
+     plugins/MediaManager/lib/XML/*           
+           ==> $MTHOME/plugins/MediaManager/lib/XML/
+     plugins/MediaManager/tmpl/*              
+           ==> $MTHOME/plugins/MediaManager/tmpl/
+     plugins/MediaManager/MediaManager.pl     
+           ==> $MTHOME/plugins/MediaManager/MediaManager.pl
+     plugins/MediaManager/MTAmazon.pl         
+           ==> $MTHOME/plugins/MediaManager/MTAmazon.pl
+
+     The following files are static files and must be placed in your static
+     web path. By default this is $MTHOME/mt-static.
+
+     mt-static/plugins/MediaManager/images/*
+           ==> $MTHOME/mt-static/plugins/MediaManager/images
+     mt-static/plugins/MediaManager/js/*
+           ==> $MTHOME/mt-static/plugins/MediaManager/js
+     mt-static/plugins/MediaManager/styles/*
+           ==> $MTHOME/mt-static/plugins/MediaManager/styles
+
+2) Set Your StaticWebPath.
+
+   Media Manager has a number of javascript, css and image files that must
+   be accessible via a web browser. If Media Manager appears unstyled, or
+   if you are receiving javascript errors, it may be the result of your
+   static web path not being set properly.
+
+   To change your static web path, open up your mt-config.cgi file and look 
+   for the following lines:
+
+     # If you place all of your MT files in a cgi-bin directory, you
+     # will need to place the directory containing your static files
+     # (mt-static) elsewhere, so that the webserver will not try to execute
+     # them.  StaticWebPath is the path to your mt-static directory.
+     #
+     # StaticWebPath http://www.example.com/mt-static
+
+   Set the value of StaticWebPath to the fully qualified URL of your
+   mt-static directory.
+
+3) Get an Amazon Web Services account. 
+
+   Visit the following URL and sign up for an Amazon Web Services 
+   account.
+
+   Once you signed up, you will need to retrieve your "AWS Access 
+   Identifiers." Specifically you will need your "Access Key ID." Your
+   Access Key ID should be a 20 character string, similar to the
+   following:
+
+     4FNWS2WS61241WGETX83
+
+   Save this Access Key ID to your clipboard. You will need it again
+   when configuring Media Manager.
+
+4) When you access Movable Type for the first time after successfully
+   installing Media Manager, Movable Type will prompt you to upgrade
+   or install Media Manager. Click "Continue" until you are finished
+   and Movable Type returns you to the application.
+
+5) Configure Media Manager and MTAmazon.
+
+   Finally, you will need to navigate to the Plugins tab located
+   under your System or Blog "Settings" menu area. From there you
+   can find MTAmazon among your list of plugins (located in the
+   list as a "Media Manager Plugin Set"). Click "Show Settings" and 
+   enter values for the following as appropriate:
+
+     * Amazon Associates ID
+     * Amazon Access Key ID
+     * Your Locale (US, Japan, France, etc)

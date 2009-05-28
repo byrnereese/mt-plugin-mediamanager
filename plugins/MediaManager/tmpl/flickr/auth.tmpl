@@ -1,0 +1,16 @@
+<mt:setvar name="edit_author" value="1">
+
+<mt:setvarblock name="page_title"><__trans phrase="Flickr Authorization"></mt:setvarblock>
+
+<mt:setvarblock name="content_nav">
+    <mt:include name="include/users_content_nav.tmpl">
+</mt:setvarblock>
+
+<mt:include name="include/header.tmpl">
+
+<p><a href="<mt:var name="auth_url">">Request Authorization from Flickr</a></p>
+
+<mt:if name="frob"><p>frob: <mt:var name="frob"></p></mt:if>
+<mt:if name="token"><p>token: <mt:var name="token"></p></mt:if>
+
+<mt:include name="include/footer.tmpl">

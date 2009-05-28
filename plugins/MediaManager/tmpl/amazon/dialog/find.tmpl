@@ -1,0 +1,47 @@
+<mt:setvarblock name="page_title"><__trans phrase="Find Item at Amazon"></mt:setvarblock>
+<mt:include name="dialog/header.tmpl">
+
+<form method="post" action="<mt:var name="script_url">">
+    <input type="hidden" name="__mode" value="amazon_find_results" />
+    <input type="hidden" name="blog_id" value="<mt:var name="blog_id">" />
+    <input type="hidden" name="entry_insert" value="<mt:var name="entry_insert">" />
+    <input type="hidden" name="magic_token" value="<mt:var name="magic_token">" />
+
+    <mtapp:setting
+        id="file"
+        label_class="top-label"
+        label="<__trans phrase="Keywords">"
+        hint="Enter the keywords with which to search the Amazon product catalog"
+        show_hint="1">
+      <input name="kw" type="text" size="60" />
+    </mtapp:setting>
+    <mtapp:setting
+        id="catalog"
+        label_class="top-label"
+        label="<__trans phrase="Show only">"
+        hint=""
+        show_hint="0">
+      <mt:include name="include/catalog_select.tmpl">
+    </mtapp:setting>
+
+    <div class="actions-bar">
+        <div class="actions-bar-inner pkg actions">
+            <button
+                type="submit"
+                accesskey="s"
+                title="<__trans phrase="Search (s)">"
+                class="primary-button"
+                ><__trans phrase="Search"></button>
+            <button
+                onclick="closeDialog(); return false"
+                type="submit"
+                accesskey="x"
+                title="<__trans phrase="Cancel (x)">"
+                ><__trans phrase="Cancel"></button>
+        </div>
+    </div>
+
+</form>
+</mt:if>
+
+<mt:include name="dialog/footer.tmpl">

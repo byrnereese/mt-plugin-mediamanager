@@ -1,0 +1,45 @@
+LICENSE AGREEMENT 
+
+This License Agreement is between you and Byrne Reese and governs
+your use of of MEDIA MANAGER 1.0 software, related software components, 
+and documentation (all of which are referred to herein as the "Software").
+
+Media Manager is licensed and distributed under the same terms as 
+Perl itself.
+
+BY DOWNLOADING, INSTALLING OR USING THE SOFTWARE, YOU AGREE TO BE
+BOUND BY THIS AGREEMENT. IF YOU DO NOT AGREE TO ALL OF THE TERMS OF THIS
+AGREEMENT, DO NOT DOWNLOAD, INSTALL OR USE THE SOFTWARE.
+
+No Warranty.  THE SOFTWARE IS BEING DELIVERED TO YOU "AS IS" AND SIX
+APART AND ITS SUPPLIERS MAKE NO WARRANTY AS TO ITS USE, RELIABILITY OR
+PERFORMANCE.  BYRNE REESE AND ITS SUPPLIERS DO NOT AND CANNOT WARRANT THE
+PERFORMANCE OR RESULTS YOU MAY OBTAIN BY USING THE SOFTWARE.  SIX
+APART AND ITS SUPPLIERS MAKE NO WARRANTIES, EXPRESS OR IMPLIED, AS TO
+NONINFRINGEMENT OF THIRD PARTY RIGHTS, TITLE, MERCHANTABILITY, OR FITNESS
+FOR ANY PARTICULAR PURPOSE.  YOU ASSUME ALL RISK ASSOCIATED WITH THE
+QUALITY, PERFORMANCE, INSTALLATION AND USE OF THE SOFTWARE INCLUDING,
+BUT NOT LIMITED TO, THE RISKS OF PROGRAM ERRORS, DAMAGE TO EQUIPMENT, LOSS
+OF DATA OR SOFTWARE PROGRAMS, OR UNAVAILABILITY OR INTERRUPTION OF
+OPERATIONS.  YOU ARE SOLELY RESPONSIBLE FOR DETERMINING THE APPROPRIATENESS
+OF USE THE SOFTWARE AND ASSUME ALL RISKS ASSOCIATED WITH ITS USE.
+
+Indemnification.  You agree to indemnify and hold Byrne Reese harmless 
+from any claim or demand, including reasonable attorneys' fees, made by 
+any third party due to or arising out of your use of the Software, 
+or the infringement by you, of any intellectual property or other right 
+of any person or entity.
+
+Limitation of Liability.  IN NO EVENT WILL BYRNE REESE OR ITS SUPPLIERS BE
+LIABLE TO YOU FOR ANY INDIRECT, INCIDENTAL, SPECIAL, PUNITIVE,
+CONSEQUENTIAL, OR OTHER DAMAGES WHATSOEVER, OR ANY LOSS OF REVENUE, DATA,
+USE, OR PROFITS, EVEN IF BYRNE REESE HAS BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGES, AND REGARDLESS OF WHETHER THE CLAIM IS BASED
+UPON ANY CONTRACT, TORT OR OTHER LEGAL OR EQUITABLE THEORY.  Some States do
+not allow the exclusion or limitation of incidental or consequential
+damages, or the exclusion of implied warranties or limitations on how long
+an implied warranty lasts, so the above limitations or exclusions may not
+apply to you.
+
+Contact Information.  If you have any questions about this Agreement,
+please contact byrne at majordojo dot com.

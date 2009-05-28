@@ -1,0 +1,5 @@
+   <select name="catalog">
+<TMPL_LOOP NAME=CATALOG_LOOP>
+     <option value="<TMPL_VAR NAME=KEY>" <TMPL_IF NAME=SELECTED>selected</TMPL_IF>><TMPL_VAR NAME=NAME></option>
+</TMPL_LOOP>
+   </select>
