@@ -39,13 +39,16 @@
 		height: 130px;
 		width: 131px;
 		float: left;
-		border: 1px solid #ccc;
 		padding: 5px;
 		margin-right: 5px;
 		margin-bottom: 5px;
+		text-align: center;
 	}
 		.amazon-search-results .asset.selected {
 			background-color: #336699;
+                        border-radius: 5px;
+                        -moz-border-radius: 5px;
+                       -webkit-border-radius: 5px;
 		}
 			.amazon-search-results .asset.selected .asset-title {
 				color: #fff;

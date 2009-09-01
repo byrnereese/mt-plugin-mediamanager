@@ -73,7 +73,7 @@
 <mt:if name="entry_loop">
 <mt:loop name="entry_loop">
       <div id="asset-<mt:var name="asin" />" class="asset unselected" onclick="toggle_select('<mt:var name="asin" />');return false;">
-        <div class="asset-thumbnail" style="background-image: url(<TMPL_VAR NAME=AMZN_IMG_URL>)">
+        <div class="asset-thumbnail" style="background-image: url(<mt:var name="amzn_img_url">)">
         </div>
         <div class="asset-title">
 	 <TMPL_VAR NAME=TITLE>

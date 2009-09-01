@@ -5,10 +5,9 @@
 package MTAmazon3::Util;
 
 use strict;
-use vars qw($TTL_DAYS @EXPORT_OK @ISA);
-require Exporter;
-@EXPORT_OK = qw(trim readconfig find_cached_item cache_item CallAmazon handle_expressions);
-@ISA = qw(Exporter);
+use vars qw($TTL_DAYS);
+use base 'Exporter';
+our @EXPORT_OK = qw(trim readconfig find_cached_item cache_item CallAmazon handle_expressions);
 
 $TTL_DAYS = 7;
 

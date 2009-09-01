@@ -62,6 +62,7 @@ sub init_registry {
 		    asset_options => '$MediaManager::MediaManager::CMS::asset_options',
 		    insert_options => '$MediaManager::MediaManager::CMS::insert_options',
 		    insert => '$MediaManager::MediaManager::CMS::insert',
+
 #		    'save'              => \&save_entry,
 #		    'edit'              => \&edit_entry,
 #		    'edit_dialog'       => \&edit_dialog,

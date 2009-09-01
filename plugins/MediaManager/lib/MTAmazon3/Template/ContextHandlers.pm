@@ -37,7 +37,7 @@ sub ItemLookup {
     my ($ctx, $args) = @_;
 
     if (!defined($args->{'responsegroup'})) {
-	$args->{'responsegroup'} = 'Small,Images,OfferSummary';
+	$args->{'responsegroup'} = 'Medium';
     }
 
     my $config = readconfig($ctx->stash('blog_id'));
@@ -45,24 +45,38 @@ sub ItemLookup {
     my $tokens = $ctx->stash('tokens');
     my $builder = $ctx->stash('builder');
 
-#    $args = handle_expressions($ctx, $args);
-
-    my $content_tree;
-    eval {
-	$content_tree = ItemLookupHelper($config,$args);
-    };
-    if ($@) {
-	return $ctx->error($@);
+    # TODO - process args
+    # ItemId ResponseGroup ItemPage SearchIndex Keywords
+    foreach (qw(ItemId ResponseGroup ItemPage SearchIndex Keywords)) {
+	my $key = lc($_);
+	$args->{$_} = delete $args->{$key} if ($args->{$key});
     }
-#    $ctx->stash('AmazonXML', $p->XMLout($content_tree));
-    my $details = $content_tree->{'Items'}->{'Item'};
-    return '' unless defined $details; 
-    my $prod = '';
-    $ctx->stash('AmazonItem', $details);
+
+    my $ua = Net::Amazon->new( 
+	token      => $config->{accesskey},
+	secret_key => $config->{secretkey},
+	locale     => $config->{locale},
+	max_pages  => 1,
+#	cache      => $cache,
+    );
+    my $response = $ua->search( 
+	keyword => $args->{keywords}, 
+	mode    => $args->{searchindex}, 
+	page    => $args->{itempage},
+	type    => $args->{responsegroup} || 'Medium' 
+    );
+
+    if($response->is_error()) {
+	MT->log({ blog_id => $blog->id, 
+		  message => "Error conducting Amazon search for keywords '$keywords': " . $response->message() });
+    }
+
+    my $item = $response->properties;
+    return '' unless defined $item; 
+    $ctx->stash('AmazonItem', $item);
     my $out = $builder->build($ctx, $tokens);
     return $ctx->error( $builder->errstr ) unless defined $out;
-    $prod .= $out;
-    return $prod;
+    return $out;
 }
 
 sub ItemSearch {
@@ -365,28 +379,28 @@ sub AmazonASIN {
     my $ctx = shift;
     defined(my $i = $ctx->stash('AmazonItem'))
         or return '';
-    $i->{ASIN} || '';
+    $i->ASIN || '';
 }
 
 sub AmazonDetailPageURL {
     my $ctx = shift;
     defined(my $i = $ctx->stash('AmazonItem'))
         or return '';
-    $i->{DetailPageURL} || '';
+    $i->url || '';
 }
 
 sub AmazonTitle {
     my $ctx = shift;
     defined(my $i = $ctx->stash('AmazonItem'))
         or return '';
-    $i->{ItemAttributes}->{Title} || '';
+    $i->ProductName || '';
 }
 
 sub AmazonProductGroup {
     my $ctx = shift;
     defined(my $i = $ctx->stash('AmazonItem'))
         or return '';
-    $i->{ItemAttributes}->{ProductGroup} || '';
+    $i->Catalog || '';
 }
 
 sub AmazonIfItemAttribute {
@@ -438,6 +452,9 @@ sub AmazonCustomImage {
     my ($ctx,$args) = @_;
     defined(my $i = $ctx->stash('AmazonItem'))
         or return '';
+		
+    my $config = readconfig($ctx->stash('blog_id'));
+		
     my $opts = "_";
     $opts .= "THUMBZZZ_" if $args->{'size'} eq "thumb";
     $opts .= "TZZZZZZZ_" if $args->{'size'} eq "small";
@@ -455,7 +472,23 @@ sub AmazonCustomImage {
 	$opts .= "PD".$args->{'percent'}."_" if $args->{'percentloc'} eq 'left';
 	$opts .= "PE".$args->{'percent'}."_" if $args->{'percentloc'} eq 'right';
     }
-    return 'http://images.amazon.com/images/P/'.$i->{ASIN}.'.01.'.$opts.'.jpg';
+	
+	my $locale;
+    if ($config->{locale} eq 'uk') {
+		$locale = '02';
+    } elsif ($config->{locale} eq 'de') {
+		$locale = '03';
+    } elsif ($config->{locale} eq 'jp') {
+		$locale = '09';
+    } elsif ($config->{locale} eq 'fr') {
+		$locale = '08';
+    } elsif ($config->{locale} eq 'ca') {
+		$locale = '01';
+    } else { # default to US
+		$locale = '01';
+    }
+	
+    return 'http://images.amazon.com/images/P/'.$i->{ASIN}.'.'.$locale.'.'.$opts.'.jpg';
 }
 
 sub AmazonField { 

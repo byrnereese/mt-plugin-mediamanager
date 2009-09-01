@@ -1,5 +1,6 @@
 # This software is licensed under the GPL
 # Copyright (C) 2005-2007, Six Apart, Ltd.
+# Copyright (C) 2009, Byrne Reese.
 
 package MTAmazon3::CMS;
 
@@ -15,8 +16,7 @@ sub clear_cache {
     my $q = $app->{query};
     my $blog = $app->blog;
     my $tmpl = $app->load_tmpl('amazon/clear_cache.tmpl');
-    require MTAmazon3::Item;
-    MTAmazon3::Item->remove_all;
+    MT->model('asset.amazon')->remove_all;
     return $app->build_page($tmpl);
 }
 

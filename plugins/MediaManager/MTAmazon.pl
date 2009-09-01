@@ -32,10 +32,11 @@ my $plugin = MT::Plugin::MTAmazon3->new({
     doc_link        => "http://www.majordojo.com/projects/MTAmazon/docs.php",
     system_config_template => \&sysconf_template,
     blog_config_template => \&blogconf_template,
-    object_classes => [ 'MTAmazon3::Item' ],
     schema_version => 1,
     settings        => new MT::PluginSettings([
 					       ['accesskey',   { Default => '', 
+								 Scope => 'blog' }],
+					       ['secretkey',   { Default => '', 
 								 Scope => 'blog' }],
 					       ['associateid', { Default => 'majordojo-20', 
 								 Scope => 'blog' }],
@@ -45,6 +46,7 @@ my $plugin = MT::Plugin::MTAmazon3->new({
 								 Scope => 'blog' }],
 					       
 					       ['accesskey',   { Default => '' }],
+					       ['secretkey',   { Default => '' }],
 					       ['associateid', { Default => 'majordojo-20' }], 
 					       ['allow_aid',   { Default => 1 }],
 					       ['allow_sid',   { Default => 1 }],
@@ -59,6 +61,10 @@ sub init_registry {
     my $plugin = shift;
     $plugin->registry({
         tags => \&load_tags,
+        object_types => {
+	  'amazon.cache' => 'MTAmazon3::Item',
+	  'asset.amazon' => 'MT::Asset::Amazon',
+	},
         applications => {
             cms => {
                 methods => {
@@ -89,7 +95,15 @@ sub blogconf_template {
       <div class="field">
         <p><input type="text" size="30" name="accesskey" value="<TMPL_VAR NAME=ACCESSKEY>" /><br />
         <a target="_new" href="http://www.amazon.com/gp/aws/registration/registration-form.html">Register for an Access Key</a> | 
-        <a target="_new" href="">What is an Access Key?</a></p>
+        <a target="_new" href="http://docs.amazonwebservices.com/AWSECommerceService/2007-10-29/GSG/GettinganAWSAccessKeyID.html">What is an Access Key?</a></p>
+      </div>
+    </div>
+    <div class="setting">
+      <div class="label">
+        <label for="accesskey">Secret Key:</label>
+      </div>
+      <div class="field">
+        <p><input type="text" size="30" name="secretkey" value="<TMPL_VAR NAME=SECRETKEY>" /></p>
       </div>
     </div>
 EOT
@@ -200,11 +214,17 @@ function clear_cache( bttn ) {
       <div class="field">
         <p><input type="text" size="30" name="accesskey" value="<TMPL_VAR NAME=ACCESSKEY>" /><br />
         <a target="_new" href="http://www.amazon.com/gp/aws/registration/registration-form.html">Register for an Access Key</a> | 
-        <a target="_new" href="">What is an Access Key?</a></p>
+        <a target="_new" href="http://docs.amazonwebservices.com/AWSECommerceService/2007-10-29/GSG/GettinganAWSAccessKeyID.html">What is an Access Key?</a></p>
+      </div>
+      <div class="label">
+        <label for="accesskey">Secret Key:</label>
+      </div>
+      <div class="field">
+        <p><input type="text" size="30" name="secretkey" value="<TMPL_VAR NAME=SECRETKEY>" /></p>
       </div>
       <div class="label"></div>
       <div class="field">
-        <p><input type="checkbox" name="allow_sid" value="1" <TMPL_IF NAME=ALLOW_SID>checked </TMPL_IF>/> Permit blog owners to use their own Amazon Access Key.</p>
+        <p><input type="checkbox" name="allow_sid" value="1" <TMPL_IF NAME=ALLOW_SID>checked </TMPL_IF>/> Permit blog owners to use their own Amazon Access and Secret Keys.</p>
       </div>
     </div>
     <div class="setting">

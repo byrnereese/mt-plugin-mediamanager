@@ -7,25 +7,24 @@ package MediaManager::CMS;
 use strict;
 use base qw( MT::App );
 
+use MTAmazon3::Util qw(readconfig);
+
 sub plugin {
     return MT->component('MediaManager');
 }
 
 use MT::Util qw( format_ts offset_time_list );
 use MT::ConfigMgr;
-use MediaManager::Entry;
 use MediaManager::Util;
-use XML::Simple;
+use Net::Amazon;
 
 sub id { 'mediamanager_cms' }
 
 sub init {
     my $app = shift;
     my %param = @_;
-#    $app->SUPER::init(%param) or return;
-    require MTAmazon3::Util;
     eval {
-	$app->{mmanager_cfg} = MTAmazon3::Util::readconfig($app->{query}->param('blog_id'));
+	$app->{mmanager_cfg} = readconfig($app->{query}->param('blog_id'));
     };
     return $app->error($@) if $@;
     $app;
@@ -69,38 +68,55 @@ sub find_results {
     my @entry_data;
       
     require MTAmazon3::Util;
-    my $xml = MTAmazon3::Util::CallAmazon("ItemSearch",$app->{mmanager_cfg},{
-	ItemPage      => $page,
-	SearchIndex   => $catalog,
-	Keywords      => $keywords,
-	ResponseGroup => 'Request,Small,Images',
-    });
+    use Log::Log4perl qw(:easy);
+    Log::Log4perl->easy_init( { level   => $DEBUG,
+                                file    => ">>/Users/breese/Sites/logs/amazon.log" } );
 
-    my $results = XMLin($xml);
 
-    my $n_pages = $results->{Items}->{TotalPages};
-    my $n_results = $results->{Items}->{TotalResults};
-    my $items = $results->{Items}->{Item};
+#    my $cache = Cache::File->new( 
+#        cache_root        => '/tmp/mycache',
+#        default_expires   => '30 min',
+#	);
+
+    my $ua = Net::Amazon->new( 
+	token      => $app->{mmanager_cfg}->{accesskey},
+	secret_key => $app->{mmanager_cfg}->{secretkey},
+	locale     => $app->{mmanager_cfg}->{locale},
+	max_pages  => 1,
+#	cache      => $cache,
+    );
+    my $response = $ua->search( 
+	keyword => $keywords, 
+	mode    => $catalog, 
+	page    => $page,
+	type    => 'Medium' 
+    );
+
+    if($response->is_error()) {
+	MT->log({ blog_id => $blog->id, 
+		  message => "Error conducting Amazon search for keywords '$keywords': " . $response->message() });
+    }
+
+    my $n_results = $response->total_results;
     my $count = 0;
-    $items = [ $items ] if (ref($items) ne "ARRAY");
-    foreach my $item (@$items) {
+    for my $item ($response->properties) {
         my $row = {
             blog_id      => $blog_id,
-            asin         => $item->{ASIN},
-            isbn         => $item->{ISBN},
-	    catalog      => $item->{ItemAttributes}->{ProductGroup},
-            entry_odd    => $count++ % 2 ? 1 : 0,
-            title        => $item->{ItemAttributes}->{Title},
-            amzn_attr    => $item->{ItemAttributes},
-	    amzn_img_url => MediaManager::Util::format_img_url($item,'Medium'),
-	    item_url     => $item->{DetailPageURL},
-	    icon         => _gen_icon_url($item->{ItemAttributes}->{ProductGroup}),
-	    authors      => ref $item->{ItemAttributes}->{Author} eq "ARRAY"
-		? join(", ", @{ $item->{ItemAttributes}->{Author} })
-		: $item->{ItemAttributes}->{Author},
-	    artists      => ref $item->{ItemAttributes}->{Artist} eq "ARRAY"
-	        ? join(", ", @{ $item->{ItemAttributes}->{Artist} })
-		: $item->{ItemAttributes}->{Artist},
+            asin         => $item->ASIN,
+	    catalog      => $item->Catalog,
+            __first__    => ($count == 0),
+            entry_odd    => ($count++ % 2 ? 1 : 0),
+            title        => $item->ProductName,
+	    amzn_img_url => $item->ImageUrlMedium,
+	    item_url     => $item->url,
+	    icon         => _gen_icon_url( $item->Catalog ),
+#	    authors      => ref $item->authors->{Author} eq "ARRAY"
+#		? join(", ", @{ $item->authors->{Author} })
+#		: $item->authors->{Author},
+#            amzn_attr    => $item->{ItemAttributes},
+#            artists      => ref $item->{ItemAttributes}->{Artist} eq "ARRAY"
+#               ? join(", ", @{ $item->{ItemAttributes}->{Artist} })
+#	        : $item->{ItemAttributes}->{Artist},
         };
         # hack, but it fixes a problem when the catalog returned by amazon 
 	# is "Book" and not "Books"
@@ -113,28 +129,26 @@ sub find_results {
     my $limit = 10;
     my $offset = $limit * ($page - 1);
     $tmpl->param(return_args => "__mode=results&blog_id=".$blog->id."&catalog=".$catalog."&kw=".$keywords);
+    $tmpl->param(raw        => $response->as_string() );
+    $tmpl->param(message    => $response->message() );
     $tmpl->param(list_start => $offset + 1);
-    $tmpl->param(list_end => $offset + (scalar @entry_data));
+    $tmpl->param(list_end   => $offset + (scalar @entry_data));
     $tmpl->param(list_total => $n_results);
-    $tmpl->param(next_max => ($tmpl->param('list_total') - $limit));
-    $tmpl->param(next_max => (($tmpl->param('next_max') || 0) < $offset + 1) ? 0 : 1);
-    $tmpl->param(PREV_OFFSET => $offset > 0);
+    $tmpl->param(next_max        => ($tmpl->param('list_total') - $limit));
+    $tmpl->param(next_max        => (($tmpl->param('next_max') || 0) < $offset + 1) ? 0 : 1);
+    $tmpl->param(PREV_OFFSET     => $offset > 0);
     $tmpl->param(prev_offset_val => $page - 1);
-    $tmpl->param(next_offset => $offset + $limit < $tmpl->param('list_total'));
+    $tmpl->param(next_offset     => $offset + $limit < $tmpl->param('list_total'));
     $tmpl->param(next_offset_val => $page + 1);
 
-    $tmpl->param(blog_id => $blog->id);
-    $tmpl->param(blog_name => $blog->name);
+    $tmpl->param(blog_id    => $blog->id);
+    $tmpl->param(blog_name  => $blog->name);
     $tmpl->param(entry_loop => \@entry_data);
-    $tmpl->param(empty => !$n_results);
-    $tmpl->param(page => $page);
-    $tmpl->param(paginate => $n_pages > 1 ? 1 : 0);
-    $tmpl->param(keywords => $keywords);
-    $tmpl->param(n_results => $n_results);
-    $tmpl->param(n_pages => $n_pages);
+    $tmpl->param(empty      => !$n_results);
+    $tmpl->param(page       => $page);
+    $tmpl->param(keywords   => $keywords);
+    $tmpl->param(n_results  => $n_results);
     $tmpl->param(show_all_options => 0);
-
-    $tmpl->param(breadcrumbs  => $app->{breadcrumbs});
 
     return $app->build_page($tmpl);
 }
@@ -150,48 +164,60 @@ sub asset_options {
     my $blog = $app->blog;
     my $asin = $q->param('selected');
 
-    my $content_tree;
-    eval {
-	require MTAmazon3::Plugin;
-	$content_tree = MTAmazon3::Plugin::ItemLookupHelper(
-            $app->{mmanager_cfg},{
-		itemid => $asin,
-		responsegroup => 'Small,Images,OfferSummary',
-	    });
-    };
-    if ($@) {
-	return $app->error($@);
-    }
-    my $item = $content_tree->{'Items'}->{'Item'};
+    use Log::Log4perl qw(:easy);
+    Log::Log4perl->easy_init( { level   => $DEBUG,
+				file    => ">>/Users/breese/Sites/logs/amazon.log" } );
+    
 
-    require MT::Asset::Amazon;
-    my $asset = MT::Asset::Amazon->new;
+#    my $cache = Cache::File->new( 
+#        cache_root        => '/tmp/mycache',
+#        default_expires   => '30 min',
+#	);
+    
+    my $ua = Net::Amazon->new( 
+	token      => $app->{mmanager_cfg}->{accesskey},
+	secret_key => $app->{mmanager_cfg}->{secretkey},
+	locale     => $app->{mmanager_cfg}->{locale},
+	max_pages  => 1,
+#	cache      => $cache,
+	);
+    my $response = $ua->search( asin => $asin ); 
+    
+    if($response->is_error()) {
+	MT->log({ blog_id => $blog->id, 
+		  message => "Error conducting Amazon search for item '$asin': " . $response->message() });
+    }
+    
+#    my $item = $content_tree->{'Items'}->{'Item'};
+    my $item = $response->properties;
+
+    my $asset = MT->model('asset.amazon')->new;
     $asset->blog_id($q->param('blog_id'));
     $asset->label($q->param('label'));
-    $asset->url($item->{DetailPageURL});
+    $asset->url($item->url);
     $asset->created_by( $app->user->id );
 
     $asset->asin($asin);
-    $asset->product_group($item->{ItemAttributes}->{ProductGroup});
-    $asset->original_title($item->{ItemAttributes}->{Title});
+    $asset->product_group($item->Catalog);
+    $asset->original_title($item->ProductName);
 
-    if ($item->{ItemAttributes}->{Author}) {
-	$asset->artist(ref $item->{ItemAttributes}->{Author} eq "ARRAY"
-			? join(", ", @{ $item->{ItemAttributes}->{Author} })
-			: $item->{ItemAttributes}->{Author});
-    } elsif ($item->{ItemAttributes}->{Artist}) {
-	$asset->artist(ref $item->{ItemAttributes}->{Artist} eq "ARRAY"
-			? join(", ", @{ $item->{ItemAttributes}->{Artist} })
-			: $item->{ItemAttributes}->{Artist});
-    }
+#    if ($item->{ItemAttributes}->{Author}) {
+#	$asset->artist(ref $item->{ItemAttributes}->{Author} eq "ARRAY"
+#			? join(", ", @{ $item->{ItemAttributes}->{Author} })
+#			: $item->{ItemAttributes}->{Author});
+#    } elsif ($item->{ItemAttributes}->{Artist}) {
+#	$asset->artist(ref $item->{ItemAttributes}->{Artist} eq "ARRAY"
+#			? join(", ", @{ $item->{ItemAttributes}->{Artist} })
+#			: $item->{ItemAttributes}->{Artist});
+#    }
 
     my $original = $asset->clone;
     $asset->save;
     $app->run_callbacks( 'cms_post_save.asset', $app, $asset, $original );
 
     return $app->complete_insert( 
-        asset => $asset,
-        asin => $asin,
+        asset     => $asset,
+        asin      => $asin,
 	thumbnail => $asset->thumbnail_url,
     );
 }
