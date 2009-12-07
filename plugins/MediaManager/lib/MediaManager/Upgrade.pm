@@ -1,8 +1,8 @@
 package MediaManager::Upgrade;
 
 use MT::Asset::Amazon;
-use MTAmazon3::Plugin qw(ItemLookupHelper);
-use MTAmazon3::Util qw(trim readconfig find_cached_item cache_item CallAmazon handle_expressions);
+use Amazon::Plugin qw(ItemLookupHelper);
+use Amazon::Util qw(trim readconfig find_cached_item cache_item CallAmazon handle_expressions);
 
 sub core_upgrade_functions {
     return {
@@ -38,7 +38,7 @@ sub core_upgrade_functions {
                 label => 'Migrating Media Manager entries to assets...',
                 code => sub {
 		    require MediaManager::Entry;
-		    require MTAmazon3::Plugin;
+		    require Amazon::Plugin;
 		    my $a = MT::Asset::Amazon->new;
 
 		    my %terms;
@@ -52,8 +52,8 @@ sub core_upgrade_functions {
 			my $content_tree;
 			my $config = readconfig($entry->blog_id);
 			eval {
-			    require MTAmazon3::Plugin;
-			    $content_tree = MTAmazon3::Plugin::ItemLookupHelper(
+			    require Amazon::Plugin;
+			    $content_tree = Amazon::Plugin::ItemLookupHelper(
 										$config,{
 										    itemid => $entry->isbn,
 										    responsegroup => 'Small,Images,OfferSummary',

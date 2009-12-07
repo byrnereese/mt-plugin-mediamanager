@@ -2,21 +2,24 @@
 # Copyright (C) 2005-2007, Six Apart, Ltd.
 # Copyright (C) 2009, Byrne Reese.
 
-package MTAmazon3::CMS;
+package Amazon::CMS;
 
 use strict;
 use base qw( MT::App );
-
-sub plugin {
-    return MT->component('MTAmazon');
-}
 
 sub clear_cache {
     my $app = shift;
     my $q = $app->{query};
     my $blog = $app->blog;
     my $tmpl = $app->load_tmpl('amazon/clear_cache.tmpl');
-    MT->model('asset.amazon')->remove_all;
+
+    require Cache::File;
+    my $cache = Cache::File->new(
+        cache_root        => $config->{cache_path},
+        namespace         => 'MTAmazon',
+        );
+    $cache->clear();
+
     return $app->build_page($tmpl);
 }
 

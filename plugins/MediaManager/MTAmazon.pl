@@ -11,16 +11,16 @@
 #
 # $Id: $
 
-package MT::Plugin::MTAmazon3;
+package MT::Plugin::MTAmazon;
 
 use MT;
 
 use strict;
 use base qw( MT::Plugin );
 use constant DEBUG => 0;
-our $VERSION = '3.09';
+our $VERSION = '4.0';
 
-my $plugin = MT::Plugin::MTAmazon3->new({
+my $plugin = MT::Plugin::MTAmazon->new({
     id              => 'MTAmazon',
     key             => 'MTAmazon',
     name            => 'MTAmazon',
@@ -45,11 +45,14 @@ my $plugin = MT::Plugin::MTAmazon3->new({
 					       ['delay',       { Default => 0,
 								 Scope => 'blog' }],
 					       
-					       ['accesskey',   { Default => '' }],
-					       ['secretkey',   { Default => '' }],
-					       ['associateid', { Default => 'majordojo-20' }], 
-					       ['allow_aid',   { Default => 1 }],
-					       ['allow_sid',   { Default => 1 }],
+					       ['cache_path',   { Default => '' }],
+					       ['cache_expire', { Default => '' }],
+
+					       ['accesskey',    { Default => '' }],
+					       ['secretkey',    { Default => '' }],
+					       ['associateid',  { Default => 'majordojo-20' }], 
+					       ['allow_aid',    { Default => 1 }],
+					       ['allow_sid',    { Default => 1 }],
 					       ]),
     });
 
@@ -62,28 +65,27 @@ sub init_registry {
     $plugin->registry({
         tags => \&load_tags,
         object_types => {
-	  'amazon.cache' => 'MTAmazon3::Item',
-	  'asset.amazon' => 'MT::Asset::Amazon',
-	},
+            'asset.amazon' => 'MT::Asset::Amazon',
+        },
         applications => {
             cms => {
                 methods => {
-                    clear_cache => '$MediaManager::MTAmazon3::CMS::clear_cache',
-		},
-	    },
-	},
-    });
+                    clear_cache => '$MediaManager::Amazon::CMS::clear_cache',
+                },
+            },
+        },
+   });
 }
 
 sub load_tags {
-    require MTAmazon3::Template::ContextHandlers;
-    return MTAmazon3::Template::Context::amazon_tags();
+    require Amazon::Template::ContextHandlers;
+    return Amazon::Template::Context::amazon_tags();
 }
 
 sub blogconf_template {
     my ($plugin,$param,$scope) = @_;
-    require MTAmazon3::Util;
-    my $cfg = MTAmazon3::Util::readconfig(MT::App->instance->blog->id,
+    require Amazon::Util;
+    my $cfg = Amazon::Util::readconfig(MT::App->instance->blog->id,
 					  { ignore_errors => 1} );
     my $tmpl = "";
     if ($cfg->{allow_sid}) {
@@ -239,11 +241,26 @@ function clear_cache( bttn ) {
         <p><input type="checkbox" name="allow_aid" value="1" <TMPL_IF NAME=ALLOW_AID>checked </TMPL_IF>/> Permit blog owners to use their own Amazon Associates ID.</p>
       </div>
     </div>
+
+    <div class="setting">
+      <div class="label">
+        <label for="accesskey">Cache Path:</label>
+      </div>
+      <div class="field">
+        <input type="text" size="30" name="cache_path" value="<TMPL_VAR NAME=CACHE_PATH>" />
+      </div>
+      <div class="label">
+        <label for="accesskey">Cache Expires:</label>
+      </div>
+      <div class="field">
+        <p><input type="text" size="30" name="cache_expire" value="<TMPL_VAR NAME=CACHE_EXPIRE>" /></p>
+      </div>
+    </div>
     <div class="setting">
       <div class="label"></div>
       <div class="field">
         <p id="clear-cache">
-          <input type="button" value="Clear MTAmazon Cache" onclick="clear_cache()" />
+          <input type="button" value="Clear Cache" onclick="clear_cache()" />
         </p>
       </div>
     </div> 

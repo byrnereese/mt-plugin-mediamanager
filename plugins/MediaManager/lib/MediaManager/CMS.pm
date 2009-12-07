@@ -7,7 +7,7 @@ package MediaManager::CMS;
 use strict;
 use base qw( MT::App );
 
-use MTAmazon3::Util qw(readconfig);
+use Amazon::Util qw(readconfig);
 
 sub plugin {
     return MT->component('MediaManager');
@@ -67,56 +67,50 @@ sub find_results {
 
     my @entry_data;
       
-    require MTAmazon3::Util;
-    use Log::Log4perl qw(:easy);
-    Log::Log4perl->easy_init( { level   => $DEBUG,
-                                file    => ">>/Users/breese/Sites/logs/amazon.log" } );
+    require Amazon::Util;
 
-
-#    my $cache = Cache::File->new( 
-#        cache_root        => '/tmp/mycache',
-#        default_expires   => '30 min',
-#	);
-
-    my $ua = Net::Amazon->new( 
-	token      => $app->{mmanager_cfg}->{accesskey},
-	secret_key => $app->{mmanager_cfg}->{secretkey},
-	locale     => $app->{mmanager_cfg}->{locale},
-	max_pages  => 1,
-#	cache      => $cache,
-    );
-    my $response = $ua->search( 
-	keyword => $keywords, 
-	mode    => $catalog, 
-	page    => $page,
-	type    => 'Medium' 
-    );
-
-    if($response->is_error()) {
-	MT->log({ blog_id => $blog->id, 
-		  message => "Error conducting Amazon search for keywords '$keywords': " . $response->message() });
+    my $cache = undef;
+    if ($config->{cache_path} && $config->{cache_expire}) {
+        require Cache::File;
+        $cache = Cache::File->new( 
+            cache_root        => $config->{cache_path},
+            namespace         => 'MTAmazon',
+            default_expires   => $config->{cache_expire},
+            );
     }
 
+    my $ua = Net::Amazon->new( 
+        token      => $app->{mmanager_cfg}->{accesskey},
+        secret_key => $app->{mmanager_cfg}->{secretkey},
+        locale     => $app->{mmanager_cfg}->{locale},
+        max_pages  => 1,
+        cache      => $cache,
+    );
+    my $response = $ua->search( 
+        keyword => $keywords, 
+        mode    => $catalog, 
+        page    => $page,
+        type    => 'Medium' 
+        );
+
+    if($response->is_error()) {
+        MT->log({ blog_id => $blog->id, 
+                  message => "Error conducting Amazon search for keywords '$keywords': " . $response->message() });
+    }
+    
     my $n_results = $response->total_results;
     my $count = 0;
     for my $item ($response->properties) {
         my $row = {
             blog_id      => $blog_id,
             asin         => $item->ASIN,
-	    catalog      => $item->Catalog,
+            catalog      => $item->Catalog,
             __first__    => ($count == 0),
             entry_odd    => ($count++ % 2 ? 1 : 0),
             title        => $item->ProductName,
-	    amzn_img_url => $item->ImageUrlMedium,
-	    item_url     => $item->url,
-	    icon         => _gen_icon_url( $item->Catalog ),
-#	    authors      => ref $item->authors->{Author} eq "ARRAY"
-#		? join(", ", @{ $item->authors->{Author} })
-#		: $item->authors->{Author},
-#            amzn_attr    => $item->{ItemAttributes},
-#            artists      => ref $item->{ItemAttributes}->{Artist} eq "ARRAY"
-#               ? join(", ", @{ $item->{ItemAttributes}->{Artist} })
-#	        : $item->{ItemAttributes}->{Artist},
+            amzn_img_url => $item->ImageUrlMedium,
+            item_url     => $item->url,
+            icon         => _gen_icon_url( $item->Catalog ),
         };
         # hack, but it fixes a problem when the catalog returned by amazon 
 	# is "Book" and not "Books"
@@ -200,16 +194,6 @@ sub asset_options {
     $asset->asin($asin);
     $asset->product_group($item->Catalog);
     $asset->original_title($item->ProductName);
-
-#    if ($item->{ItemAttributes}->{Author}) {
-#	$asset->artist(ref $item->{ItemAttributes}->{Author} eq "ARRAY"
-#			? join(", ", @{ $item->{ItemAttributes}->{Author} })
-#			: $item->{ItemAttributes}->{Author});
-#    } elsif ($item->{ItemAttributes}->{Artist}) {
-#	$asset->artist(ref $item->{ItemAttributes}->{Artist} eq "ARRAY"
-#			? join(", ", @{ $item->{ItemAttributes}->{Artist} })
-#			: $item->{ItemAttributes}->{Artist});
-#    }
 
     my $original = $asset->clone;
     $asset->save;

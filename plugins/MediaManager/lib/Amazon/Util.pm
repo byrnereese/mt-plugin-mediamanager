@@ -2,12 +2,12 @@
 # This software is licensed under the GPL
 # Copyright (C) 2005-2007, Six Apart, Ltd.
 
-package MTAmazon3::Util;
+package Amazon::Util;
 
 use strict;
 use vars qw($TTL_DAYS);
 use base 'Exporter';
-our @EXPORT_OK = qw(trim readconfig find_cached_item cache_item CallAmazon handle_expressions);
+our @EXPORT_OK = qw(trim readconfig handle_expressions);
 
 $TTL_DAYS = 7;
 
@@ -64,56 +64,6 @@ sub readconfig {
     return $config;
 }
 
-sub find_cached_item {
-    my ($asin, $response_groups) = @_;
-    my @groups = split(",",$response_groups);
-    my $sorted_groups = join(",",sort @groups);
-
-    my %constraints;
-    $constraints{asin}            = $asin;
-    $constraints{response_groups} = $sorted_groups;
-
-    my $item;
-    require MTAmazon3::Item;
-    if ( $item = MTAmazon3::Item->load( \%constraints ) ) {
-	my $now = time();
-	my ($year,$mon,$mday,$hour,$min,$sec) = 
-	    ($item->created_on =~ /(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)/);
-	require Time::Local;
-	my $then = Time::Local::timelocal($sec,$min,$hour,$mday,($mon - 1),$year);
-	my $diff = $now - $then;
-	my $ttl = $TTL_DAYS * 24 * 60 * 60;
-        if ($diff > $ttl) {
-	    $item->remove;
-	    return undef;
-        }
-        return $item;  
-    }
-    return undef;
-}
-
-sub cache_item {
-    my ($asin,$response_groups,$data) = @_;
-    my @groups = ($response_groups ? split(",",$response_groups) : ());
-    my $sorted_groups = join(",",sort @groups);
-
-    my %constraints;
-    $constraints{asin}            = $asin;
-    $constraints{response_groups} = $sorted_groups;
-
-    require MTAmazon3::Item;
-    my $item;
-    if ( $item = MTAmazon3::Item->load( \%constraints ) ) {
-	$item->remove;
-    }
-    $item = MTAmazon3::Item->new;
-    $item->asin($asin);
-    $item->response_groups($sorted_groups);
-    use Data::Dumper;
-    $item->data(Dumper($data));
-    $item->save;
-}
-
 sub _compose_url {
     my ($operation,$config,$args) = @_;
     my $url;
@@ -141,39 +91,6 @@ sub _compose_url {
 	}
     }
     return $url."?".$qs;
-}
-
-sub CallAmazon {
-    my ($operation, $config, $args) = @_;
-    
-    my $delay = $config->{'delay'};
-    if ($delay) { 
-	sleep(1); 
-    }
-    my $associateid = $config->{'associateid'};
-    my $accesskey   = $config->{'accesskey'};
-    my $locale      = $config->{'locale'};
-
-    foreach (qw(ItemId ResponseGroup ItemPage SearchIndex Keywords)) {
-	my $key = lc($_);
-	$args->{$_} = delete $args->{$key} if ($args->{$key});
-    }
-    # the following line(s) short circuit the call to Amazon if we know we will 
-    # not get anything in response
-    if ($args->{ItemId} eq "" && $operation eq "ItemLookup") { return ""; }
-
-    my $url = _compose_url($operation, $config, $args);
-
-    require LWP::UserAgent;
-    require HTTP::Request;
-    my $ua = new LWP::UserAgent;
-    $ua->agent("MTAmazon/".$MT::Plugin::MTAmazon3::VERSION);
-    my $http_request = new HTTP::Request('GET', $url);
-    my $http_response = $ua->request($http_request);
-    my $content = $http_response->{'_content'};
-    # convert nodes that contain only spaces to empty nodes
-    $content =~ s/<[^\/]([^>]+)>\s+<\/[^>]+>/<$1 \/>/g; 
-    return $content;
 }
 
 # Process MT tags in all arguments. Returns an argument reference
