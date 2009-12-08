@@ -84,7 +84,7 @@ sub find_results {
         secret_key => $app->{mmanager_cfg}->{secretkey},
         locale     => $app->{mmanager_cfg}->{locale},
         max_pages  => 1,
-        cache      => $cache,
+        ($cache ? (cache => $cache) : ()),
     );
     my $response = $ua->search( 
         ($catalog eq 'Blended' ? (blended => $keywords) : (keyword => $keywords) ), 
@@ -172,7 +172,7 @@ sub asset_options {
         secret_key => $app->{mmanager_cfg}->{secretkey},
         locale     => $app->{mmanager_cfg}->{locale},
         max_pages  => 1,
-        cache      => $cache,
+        ($cache ? (cache => $cache) : ()),
         );
     my $response = $ua->search( asin => $asin ); 
     

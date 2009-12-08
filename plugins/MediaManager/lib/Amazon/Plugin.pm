@@ -57,7 +57,7 @@ sub ItemSearch {
         token      => $config->{accesskey},
         secret_key => $config->{secretkey},
         locale     => $config->{locale},
-        cache      => $cache,
+        ($cache ? (cache => $cache) : ()),
         );
     
     # Get a request object
