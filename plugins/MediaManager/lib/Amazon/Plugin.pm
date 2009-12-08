@@ -37,12 +37,8 @@ sub _process_args {
 sub ItemSearch {
     my ($ctx, $args) = @_;
     
-    $args = _process_args( $args );
-
     my $config = readconfig($ctx->stash('blog_id'));
-
-    my $tokens = $ctx->stash('tokens');
-    my $builder = $ctx->stash('builder');
+    $args = _process_args( $args );
     $args = handle_expressions($ctx, $args);
 
     my $lastn = $args->{lastn} || 10;
@@ -67,14 +63,26 @@ sub ItemSearch {
     my $response = $ua->search( %$args );
     return $ctx->error( $response->message() ) unless $response->is_success();
 
-    my $count = 0;
     my $prod;
-    for my $i ($response->properties) {
+    my $count = 0;
+    my $builder = $ctx->stash('builder');
+    my $tokens = $ctx->stash('tokens');
+    my $out = '';
+    my $vars = $ctx->{__stash}{vars} ||= {};
+    my $glue = $args->{glue};
+    my $var = $args->{var};
+    for my $item ($response->properties) {
+        local $vars->{__first__} = $count == 1;
+        local $vars->{__last__} = $count == scalar @$var;
+        local $vars->{__odd__} = ($count % 2 ) == 1;
+        local $vars->{__even__} = ($count % 2 ) == 0;
+        local $vars->{__counter__} = $count;
         last if ++$count > $lastn;
-        $ctx->stash('AmazonItem', $i);
+        $ctx->stash('AmazonItem', $item);
         my $out = $builder->build($ctx, $tokens);
         return $ctx->error( $builder->errstr ) unless defined $out;
         $prod .= $out;
+        $i++;
     }
     return $prod;
 }
