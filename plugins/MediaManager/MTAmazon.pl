@@ -64,7 +64,7 @@ sub init_registry {
     $plugin->registry({
         tags => {
             block => {
-                'AmazonItemSearch' => '$MediaManager::Amazon::Plugin::AmazonItemSearch',
+                'AmazonItemSearch' => '$MediaManager::Amazon::Plugin::ItemSearch',
             },
             function => {
                 'AmazonASIN' => '$MediaManager::Amazon::Plugin::AmazonASIN',

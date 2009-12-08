@@ -24,7 +24,7 @@ sub init {
     my $app = shift;
     my %param = @_;
     eval {
-	$app->{mmanager_cfg} = readconfig($app->{query}->param('blog_id'));
+        $app->{mmanager_cfg} = readconfig($app->{query}->param('blog_id'));
     };
     return $app->error($@) if $@;
     $app;
@@ -70,12 +70,12 @@ sub find_results {
     require Amazon::Util;
 
     my $cache = undef;
-    if ($config->{cache_path} && $config->{cache_expire}) {
+    if ($app->{mmanager_cfg}->{cache_path} && $app->{mmanager_cfg}->{cache_expire}) {
         require Cache::File;
         $cache = Cache::File->new( 
-            cache_root        => $config->{cache_path},
+            cache_root        => $app->{mmanager_cfg}->{cache_path},
             namespace         => 'MTAmazon',
-            default_expires   => $config->{cache_expire},
+            default_expires   => $app->{mmanager_cfg}->{cache_expire},
             );
     }
 
@@ -87,7 +87,7 @@ sub find_results {
         cache      => $cache,
     );
     my $response = $ua->search( 
-        keyword => $keywords, 
+        ($catalog eq 'Blended' ? (blended => $keywords) : (keyword => $keywords) ), 
         mode    => $catalog, 
         page    => $page,
         type    => 'Medium' 
@@ -215,13 +215,13 @@ sub _catalog_loop {
     my @catalogs = qw(DVD Photo Electronics OfficeProducts HealthPersonalCare Toys Baby VideoGames MusicTracks OutdoorLiving Blended MusicalInstruments PetSupplies Magazines DigitalMusic Jewelry Video Tools PCHardware SportingGoods Classical Software Books VHS Wireless Restaurants Music GourmetFood Miscellaneous Kitchen WirelessAccessories Merchants Beauty Apparel);
     my @catalog_data;
     foreach my $c (sort @catalogs) {
-	my $phrase = $c;
-	$phrase =~ s/([a-z])([A-Z])/$1 $2/g;
-	push @catalog_data, {
-	    key => $c,
-	    name => ($phrase eq 'Blended' ? 'All' : $phrase),
-	};
-	$catalog_data[-1]{selected} = 1 if ($cat eq $c || ($c eq 'Books' && $cat eq 'Book'));
+        my $phrase = $c;
+        $phrase =~ s/([a-z])([A-Z])/$1 $2/g;
+        push @catalog_data, {
+            key => $c,
+            name => ($phrase eq 'Blended' ? 'All' : $phrase),
+        };
+        $catalog_data[-1]{selected} = 1 if ($cat eq $c || ($c eq 'Books' && $cat eq 'Book'));
     }
     return \@catalog_data;
 }
