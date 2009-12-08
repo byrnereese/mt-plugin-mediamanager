@@ -2,6 +2,6 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME            => 'Media Manager',
-    VERSION         => '2.0b3',
+    VERSION         => '2.1',
     DISTNAME        => 'MediaManager',
 );

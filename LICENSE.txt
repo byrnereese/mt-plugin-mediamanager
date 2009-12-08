@@ -1,7 +1,7 @@
 LICENSE AGREEMENT 
 
 This License Agreement is between you and Byrne Reese and governs
-your use of of MEDIA MANAGER 1.0 software, related software components, 
+your use of of MEDIA MANAGER 2.0 software, related software components, 
 and documentation (all of which are referred to herein as the "Software").
 
 Media Manager is licensed and distributed under the same terms as 
