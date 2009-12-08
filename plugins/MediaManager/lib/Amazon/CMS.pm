@@ -6,12 +6,15 @@ package Amazon::CMS;
 
 use strict;
 use base qw( MT::App );
+use Amazon::Util qw(readconfig);
 
 sub clear_cache {
     my $app = shift;
     my $q = $app->{query};
     my $blog = $app->blog;
     my $tmpl = $app->load_tmpl('amazon/clear_cache.tmpl');
+
+    my $config = readconfig( $app->blog->id );
 
     require Cache::File;
     my $cache = Cache::File->new(

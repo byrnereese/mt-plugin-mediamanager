@@ -27,7 +27,6 @@ my $plugin = MT::Plugin::MTAmazon->new({
     version         => $VERSION,
     author_name     => "Byrne Reese",
     author_link     => "http://www.majordojo.com/",
-    plugin_link     => "http://www.majordojo.com/projects/MTAmazon/",
     description     => "MTAmazon is a Movable Type plugin that uses your Amazon Associate membership to retrieve products from Amazon. It allows flexible searching and display of products from any of Amazon's product categories.",
     doc_link        => "http://www.majordojo.com/projects/MTAmazon/docs.php",
     system_config_template => \&sysconf_template,
@@ -63,7 +62,21 @@ MT->add_plugin($plugin);
 sub init_registry {
     my $plugin = shift;
     $plugin->registry({
-        tags => \&load_tags,
+        tags => {
+            block => {
+                'AmazonItemSearch' => '$MediaManager::Amazon::Plugin::AmazonItemSearch',
+            },
+            function => {
+                'AmazonASIN' => '$MediaManager::Amazon::Plugin::AmazonASIN',
+                'AmazonTitle' => '$MediaManager::Amazon::Plugin::AmazonTitle',
+                'AmazonDetailPageURL' => '$MediaManager::Amazon::Plugin::AmazonDetailPageURL',
+                'AmazonProductGroup' => '$MediaManager::Amazon::Plugin::AmazonProductGroup',
+                'AmazonImageTag' => '$MediaManager::Amazon::Plugin::AmazonImageTag',
+                'AmazonImageURL' => '$MediaManager::Amazon::Plugin::AmazonImageURL',
+                'AmazonPrice' => '$MediaManager::Amazon::Plugin::AmazonPrice',
+                'AmazonItemProperty' => '$MediaManager::Amazon::Plugin::AmazonItemProperty',
+            },
+        },
         object_types => {
             'asset.amazon' => 'MT::Asset::Amazon',
         },
@@ -75,11 +88,6 @@ sub init_registry {
             },
         },
    });
-}
-
-sub load_tags {
-    require Amazon::Template::ContextHandlers;
-    return Amazon::Template::Context::amazon_tags();
 }
 
 sub blogconf_template {
