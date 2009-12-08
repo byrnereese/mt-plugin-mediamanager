@@ -157,24 +157,23 @@ sub asset_options {
     my $q = $app->{query};
     my $blog = $app->blog;
     my $asin = $q->param('selected');
-
-    use Log::Log4perl qw(:easy);
-    Log::Log4perl->easy_init( { level   => $DEBUG,
-				file    => ">>/Users/breese/Sites/logs/amazon.log" } );
     
-
-#    my $cache = Cache::File->new( 
-#        cache_root        => '/tmp/mycache',
-#        default_expires   => '30 min',
-#	);
-    
+    my $cache = undef;
+    if ($app->{mmanager_cfg}->{cache_path} && $app->{mmanager_cfg}->{cache_expire}) {
+        require Cache::File;
+        $cache = Cache::File->new( 
+            cache_root        => $app->{mmanager_cfg}->{cache_path},
+            namespace         => 'MTAmazon',
+            default_expires   => $app->{mmanager_cfg}->{cache_expire},
+            );
+    }
     my $ua = Net::Amazon->new( 
-	token      => $app->{mmanager_cfg}->{accesskey},
-	secret_key => $app->{mmanager_cfg}->{secretkey},
-	locale     => $app->{mmanager_cfg}->{locale},
-	max_pages  => 1,
-#	cache      => $cache,
-	);
+        token      => $app->{mmanager_cfg}->{accesskey},
+        secret_key => $app->{mmanager_cfg}->{secretkey},
+        locale     => $app->{mmanager_cfg}->{locale},
+        max_pages  => 1,
+        cache      => $cache,
+        );
     my $response = $ua->search( asin => $asin ); 
     
     if($response->is_error()) {
