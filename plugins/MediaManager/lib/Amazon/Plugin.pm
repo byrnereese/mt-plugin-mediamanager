@@ -56,6 +56,7 @@ sub ItemSearch {
     my $ua = Net::Amazon->new(
         token      => $config->{accesskey},
         secret_key => $config->{secretkey},
+        locale     => $config->{locale},
         cache      => $cache,
         );
     
