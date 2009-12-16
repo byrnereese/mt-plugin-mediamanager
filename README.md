@@ -24,6 +24,8 @@ Keep in mind that before installing Media Manager you need to
 make sure you have:
 
 * Movable Type 4.01 or greater.
+* Net::Amazon 
+* Digest::SHA1
 
 # Using the Plugin
 

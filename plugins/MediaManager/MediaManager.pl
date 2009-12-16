@@ -48,11 +48,11 @@ sub init_registry {
     my $plugin = shift;
     $plugin->registry({
         tags => \&load_tags,
-        upgrade_functions => \&load_upgrade_fns,
+#        upgrade_functions => \&load_upgrade_fns,
         object_types => {
             'asset.amazon' => 'MT::Asset::Amazon',
-            'mediamanager' => 'MediaManager::Entry',
-            'mediamanager_reviews' => 'MediaManager::Review',
+#            'mediamanager' => 'MediaManager::Entry',
+#            'mediamanager_reviews' => 'MediaManager::Review',
         },
         applications => {
             cms => {
