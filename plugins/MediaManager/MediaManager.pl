@@ -47,7 +47,7 @@ MT->add_plugin($plugin);
 sub init_registry {
     my $plugin = shift;
     $plugin->registry({
-        tags => '$MediaManager::MediaManager::Template::Context::mm_tags',
+        tags => '$MediaManager::MediaManager::Template::ContextHandlers::mm_tags',
 #        upgrade_functions => \&load_upgrade_fns,
         object_types => {
             'asset.amazon' => 'MT::Asset::Amazon',
