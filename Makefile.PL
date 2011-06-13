@@ -1,7 +1,15 @@
 use ExtUtils::MakeMaker;
 
+my $file = "plugins/MediaManager/MediaManager.pl";
+my $version;
+open FILE,$file;
+while (<FILE>) {
+    last if ($version) = ($_ =~ /\$VERSION = '([^\']*)'/);
+}
+close FILE;
+
 WriteMakefile(
     NAME            => 'Media Manager',
-    VERSION         => '2.1.1',
+    VERSION         => $version,
     DISTNAME        => 'MediaManager',
 );

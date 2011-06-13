@@ -23,7 +23,7 @@ use XML::Simple;
 use strict;
 use base qw( MT::Plugin );
 use constant DEBUG => 0;
-our $VERSION = '2.1.1';
+our $VERSION = '2.1.2';
 
 require MT::Asset::Amazon;
 
